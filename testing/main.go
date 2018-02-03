@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"os"
 )
@@ -30,8 +29,8 @@ type Cpe23Item struct {
 
 // Pair has fs and uri
 type Pair struct {
-	FS  string
 	URI string
+	FS  string
 }
 
 func main() {
@@ -63,38 +62,20 @@ func main() {
 		return
 	}
 
-	uriList := []string{}
-	fsList := []string{}
-	for _, cpeItem := range cpeList.CpeItems {
-		uriList = append(uriList, cpeItem.Name)
-		fsList = append(fsList, cpeItem.Cpe23Item.Name)
-	}
-
 	pair := []Pair{}
-	shuffle(uriList)
-	shuffle(fsList)
-	for i := 0; i < 1000; i++ {
+	for _, cpeItem := range cpeList.CpeItems {
 		pair = append(pair, Pair{
-			FS:  fsList[i],
-			URI: uriList[i],
+			URI: cpeItem.Name,
+			FS:  cpeItem.Cpe23Item.Name,
 		})
 	}
+	fmt.Printf("%d data...\n", len(cpeList.CpeItems))
 
 	fmt.Println("Generating test code...")
 	t := template.Must(template.ParseFiles("dictionary_test.tmpl"))
 	file, _ := os.Create(`./dictionary_test.go`)
 	defer file.Close()
 	t.Execute(file, map[string]interface{}{
-		"URI":  uriList,
-		"FS":   fsList,
 		"Pair": pair,
 	})
-}
-
-func shuffle(data []string) {
-	n := len(data)
-	for i := n - 1; i >= 0; i-- {
-		j := rand.Intn(i + 1)
-		data[i], data[j] = data[j], data[i]
-	}
 }
