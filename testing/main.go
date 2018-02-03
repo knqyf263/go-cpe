@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 )
@@ -62,11 +63,18 @@ func main() {
 		return
 	}
 
-	pair := []Pair{}
+	var uriList, fsList []string
 	for _, cpeItem := range cpeList.CpeItems {
+		uriList = append(uriList, cpeItem.Name)
+		fsList = append(fsList, cpeItem.Cpe23Item.Name)
+	}
+	shuffle(fsList)
+
+	pair := []Pair{}
+	for i, uri := range uriList {
 		pair = append(pair, Pair{
-			URI: cpeItem.Name,
-			FS:  cpeItem.Cpe23Item.Name,
+			URI: uri,
+			FS:  fsList[i],
 		})
 	}
 	fmt.Printf("%d data...\n", len(cpeList.CpeItems))
@@ -78,4 +86,12 @@ func main() {
 	t.Execute(file, map[string]interface{}{
 		"Pair": pair,
 	})
+}
+
+func shuffle(data []string) {
+	n := len(data)
+	for i := n - 1; i >= 0; i-- {
+		j := rand.Intn(i + 1)
+		data[i], data[j] = data[j], data[i]
+	}
 }

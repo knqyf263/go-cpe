@@ -1,7 +1,6 @@
 package naming
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/knqyf263/go-cpe/common"
@@ -412,7 +411,6 @@ func unpack(s string, wfn common.WellFormedName) (common.WellFormedName, error) 
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("value", e)
 		if err = wfn.Set(a, e); err != nil {
 			return nil, err
 		}

@@ -345,6 +345,19 @@ func TestMatcher(t *testing.T) {
 		expectedIsEqual:    false,
 		expectedIsSubset:   false,
 		expectedIsSuperset: false,
+	}, {
+		wfn: common.WellFormedName{
+			"part":    "a",
+			"version": "3",
+		},
+		wfn2: common.WellFormedName{
+			"part":    "a",
+			"version": "33.0.1750.126",
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
 	},
 	}
 

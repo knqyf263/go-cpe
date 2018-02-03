@@ -201,7 +201,7 @@ func compareStrings(source, target string) Relation {
 	index = -1
 	leftover = len(target)
 	for leftover > 0 {
-		index = strings.Index(target[index+1:], source)
+		index = common.IndexOf(target, source, index+1)
 		if index == -1 {
 			break
 		}

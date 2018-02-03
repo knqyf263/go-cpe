@@ -7,6 +7,19 @@ import (
 	"github.com/pkg/errors"
 )
 
+// IndexOf searches a string for the first occurrence of another string, starting
+// at a given offset.
+// @param str1 String to search.
+// @param str2 String to search for.
+// @param off Integer offset or -1 if not found.
+func IndexOf(str1, str2 string, off int) int {
+	index := strings.Index(str1[off:], str2)
+	if index == -1 {
+		return -1
+	}
+	return index + off
+}
+
 // ContainsWildcards searches string for special characters * and ?
 // @param string String to be searched
 // @return true if string contains wildcard, false otherwise
