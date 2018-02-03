@@ -15,6 +15,7 @@
 
 SRCS = $(shell git ls-files '*.go')
 PKGS = $(shell go list ./... | grep -v /vendor/)
+COVERAGE_PKGS = $(shell go list ./... | grep -Ev "/testing|/examples")
 
 all: dep build test
 
@@ -43,7 +44,7 @@ fmt:
 fmtcheck:
 	@ $(foreach file,$(SRCS),gofmt -s -l $(file);)
 cov:
-	sh coverage.sh $(PKGS) || exit;
+	sh coverage.sh $(COVERAGE_PKGS) || exit;
 	go tool cover -html=coverage.out -o coverage.html
 
 clean:

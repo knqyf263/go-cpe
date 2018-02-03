@@ -9,7 +9,8 @@ before_install:
 script:
   - $GOPATH/bin/dep ensure
   - make test
-  - $GOPATH/bin/goveralls -service=travis-ci
+  - make cov
+  - $GOPATH/bin/goveralls -service=travis-ci -coverprofile=$TRAVIS_BUILD_DIR/coverage.out
 env:
   global:
     secure: emU3C7MweW6/xLKq1nLCphDa0XDWcK/ajuhyJ/s00NoMhbCtsiPypmVL8edRSP9GrYvHIyYMX8wv45d0cHe1Wjp9SzNE6oJNkTuNQFtfxJMcpymp77Cb/CHXkv95AlxvubQQe+0NdK0C4YMsv/GoBfj9qGD6MQOdaOFDLl8UNLW6czTZ+BHpAg7PhSPQLI6ftznmAA7sfPdYNOKdEIdYe4NEcH3/rfseCuEDpMaP28Qfue2uZ0mmfjEmj11wZM/yBgWxl2ZnhJLwXlW6tgeh7O0EQBIO99uNbZ57SWrQhABaTwqhZ9Yh/90R3Z5RsnWucJu8wL4b2fowI8V5+ORzuuNj0zV160JjAXa/Y6nmzz+c6P9DQrrS/wQ7RZGCBZoroCtkz9NKPA7xCAh6QY6QTx1rx1Gs3iyfnrvQk40jbJSORc0b3R6/TzteMTaV5Gu9NDCuU1j1BnDxsrhqh6M/y5mbkwpCk1/+rUFTeK/+crZxHhE6Y6+6yxvBYsl3+Jg41NB5n99+CsQA1RrxTIoFdO6K9SJeP2l4f9HNi1sBaz3SFlD/9uaTGjorj7+UYn8m04wxnEthPyevTzvTBGkkA/iVOW6aGmgst1kyODiom4CQfCt30jM6aroKbU3Z7vL9uNeUmCfSDNLyJ+AgfQPA0q5JsKRD9FyVBx0Bk9Mr0Sg=
