@@ -209,7 +209,7 @@ func compareStrings(source, target string) Relation {
 		if index > 0 && begins != -1 && begins < (index-escapes) {
 			break
 		}
-		escapes = common.CountEscapeCharacters(target[index+1 : len(target)])
+		escapes = common.CountEscapeCharacters(target[index+1:])
 		leftover = len(target) - index - escapes - len(source)
 		if leftover > 0 && ends != -1 && leftover > ends {
 			continue

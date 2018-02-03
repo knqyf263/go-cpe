@@ -80,7 +80,7 @@ func main() {
 		})
 	}
 
-	fmt.Println("---URI template---")
+	fmt.Println("Generating test code...")
 	t := template.Must(template.ParseFiles("dictionary_test.tmpl"))
 	file, _ := os.Create(`./dictionary_test.go`)
 	defer file.Close()

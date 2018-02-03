@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/knqyf263/go-cpe.svg?branch=master)](https://travis-ci.org/knqyf263/go-cpe)
 [![Coverage Status](https://coveralls.io/repos/github/knqyf263/go-cpe/badge.svg?branch=initial)](https://coveralls.io/github/knqyf263/go-cpe?branch=initial)
+[![Go Report Card](https://goreportcard.com/badge/github.com/knqyf263/go-cpe)](https://goreportcard.com/report/github.com/knqyf263/go-cpe)
+[![GoDoc](https://godoc.org/github.com/knqyf263/go-cpe?status.svg)](https://godoc.org/github.com/knqyf263/go-cpe)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](/LICENSE)
 
 A Go library for [CPE(A Common Platform Enumeration 2.3)](https://cpe.mitre.org/specification/)
@@ -19,7 +21,7 @@ $ go get github.com/knqyf263/go-cpe
 ```
 
 ## Compare
-See [example](/example)
+See [example](/examples)
 
 ```
 package main
