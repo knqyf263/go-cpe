@@ -1,0 +1,67 @@
+package main
+
+import (
+	"testing"
+
+	"github.com/knqyf263/go-cpe/naming"
+	"github.com/knqyf263/go-cpe/matching"
+)
+
+func TestURI(t *testing.T) {
+    vectors := []struct {
+		s        string
+	}{
+    {{ range $i, $v := .URI }} 
+    {
+        s: `{{ $v }}`,
+    },
+    {{ end -}}
+    }
+
+    for i, v := range vectors {
+		_, err := naming.UnbindURI(v.s)
+        if err != nil{
+            t.Errorf("test %d, Unexpected error: %s", i, err)
+        }
+    }
+}
+
+func TestFS(t *testing.T) {
+    vectors := []struct {
+		s        string
+	}{
+    {{ range $i, $v := .FS }} 
+    {
+        s: `{{ $v }}`,
+    },
+    {{ end -}}
+    }
+
+    for i, v := range vectors {
+		_, err := naming.UnbindFS(v.s)
+        if err != nil{
+            t.Errorf("test %d, Unexpected error: %s", i, err)
+        }
+    }
+}
+ 
+func TestCompare(t *testing.T) {
+    vectors := []struct {
+		uri       string
+		fs        string
+	}{
+    {{ range $i, $v := .Pair }} 
+    {
+        uri: `{{ $v.URI }}`,
+        fs:  `{{ $v.FS }}`,
+    },
+    {{ end -}}
+    }
+
+    for _, v := range vectors {
+		wfn, _ := naming.UnbindURI(v.uri)
+		wfn2, _ := naming.UnbindFS(v.fs)
+    	matching.IsEqual(wfn, wfn2)
+    }
+}
+ 
