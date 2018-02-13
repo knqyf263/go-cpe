@@ -17,7 +17,7 @@ For the reference Java implementation, see: https://cpe.mitre.org/specification/
 Installation can be done with a normal go get:
 
 ```
-$ go get github.com/knqyf263/go-cpe
+$ go get github.com/knqyf263/go-cpe/...
 ```
 
 ## Compare
