@@ -52,11 +52,11 @@ func IsEqual(source, target common.WellFormedName) bool {
 	return true
 }
 
-// IsSubset tests if the target Well Formed Name is a subset of the source Well Formed
+// IsSubset tests if the source Well Formed Name is a subset of the target Well Formed
 // Name.
 // @param source Source WFN
 // @param target Target WFN
-// @return true if the target is a subset of the source, false otherwise
+// @return true if the source is a subset of the target, false otherwise
 func IsSubset(source, target common.WellFormedName) bool {
 	// if any comparison is anything other than subset or equal, then target is
 	// not a subset of source.
@@ -69,10 +69,10 @@ func IsSubset(source, target common.WellFormedName) bool {
 	return true
 }
 
-// IsSuperset tests if the target Well Formed name is a superset of the source Well Formed Name.
+// IsSuperset tests if the source Well Formed name is a superset of the target Well Formed Name.
 // @param source Source WFN
 // @param target Target WFN
-// @return true if the target is a superset of the source, false otherwise
+// @return true if the source is a superset of the target, false otherwise
 func IsSuperset(source, target common.WellFormedName) bool {
 	// if any comparison is anything other than superset or equal, then target is not
 	// a superset of source.
