@@ -131,6 +131,46 @@ func TestWellFormedNameGet(t *testing.T) {
 	}
 }
 
+func TestWellFormedNameGetString(t *testing.T) {
+	vectors := []struct {
+		wfn       WellFormedName
+		attribute string
+		expected  interface{}
+	}{{
+		wfn: WellFormedName{
+			"part": "a",
+		},
+		attribute: "part",
+		expected:  "a",
+	}, {
+		wfn: WellFormedName{
+			"vendor": "microsoft",
+		},
+		attribute: "vendor",
+		expected:  "microsoft",
+	}, {
+		wfn: WellFormedName{
+			"product": any,
+		},
+		attribute: "product",
+		expected:  "ANY",
+	}, {
+		wfn: WellFormedName{
+			"product": any,
+		},
+		attribute: "version",
+		expected:  "ANY",
+	},
+	}
+
+	for i, v := range vectors {
+		actual := v.wfn.GetString(v.attribute)
+		if !reflect.DeepEqual(actual, v.expected) {
+			t.Errorf("test %d, Result: %v, want %v", i, actual, v.expected)
+		}
+	}
+}
+
 func TestWellFormedNameSet(t *testing.T) {
 	vectors := []struct {
 		wfn       WellFormedName

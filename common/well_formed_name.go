@@ -131,6 +131,14 @@ func (wfn WellFormedName) Set(attribute string, value interface{}) (err error) {
 	return nil
 }
 
+// GetString gets attribute as string
+// @param attribute String representing the component value to get
+// @return the String value of the given component, or default value "ANY"
+// if the component does not exist
+func (wfn WellFormedName) GetString(attribute string) string {
+	return fmt.Sprintf("%s", wfn.Get(attribute))
+}
+
 // String returns string representation of the WellFormedName
 func (wfn WellFormedName) String() string {
 	s := "wfn:["
