@@ -1,7 +1,5 @@
 .PHONY: \
 	all \
-	dep \
-	depup \
 	update \
 	build \
 	install \
@@ -17,17 +15,9 @@ SRCS = $(shell git ls-files '*.go')
 PKGS = $(shell go list ./... | grep -v /vendor/)
 COVERAGE_PKGS = $(shell go list ./... | grep -Ev "/testing|/examples")
 
-all: dep build test
+all: build test
 
-dep:
-	go get -u github.com/golang/dep/...
-	dep ensure
-
-depup:
-	go get -u github.com/golang/dep/...
-	dep ensure -u
-
-build: main.go dep
+build: main.go
 	go build -o go-cpe $<
 
 
