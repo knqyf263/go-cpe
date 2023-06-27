@@ -82,38 +82,41 @@ func UnbindFS(fs string) (common.WellFormedName, error) {
 		// Set the value of the corresponding attribute.
 		switch a {
 		case 2:
-			result.Set(common.AttributePart, v)
+			err = result.Set(common.AttributePart, v)
 			break
 		case 3:
-			result.Set(common.AttributeVendor, v)
+			err = result.Set(common.AttributeVendor, v)
 			break
 		case 4:
-			result.Set(common.AttributeProduct, v)
+			err = result.Set(common.AttributeProduct, v)
 			break
 		case 5:
-			result.Set(common.AttributeVersion, v)
+			err = result.Set(common.AttributeVersion, v)
 			break
 		case 6:
-			result.Set(common.AttributeUpdate, v)
+			err = result.Set(common.AttributeUpdate, v)
 			break
 		case 7:
-			result.Set(common.AttributeEdition, v)
+			err = result.Set(common.AttributeEdition, v)
 			break
 		case 8:
-			result.Set(common.AttributeLanguage, v)
+			err = result.Set(common.AttributeLanguage, v)
 			break
 		case 9:
-			result.Set(common.AttributeSwEdition, v)
+			err = result.Set(common.AttributeSwEdition, v)
 			break
 		case 10:
-			result.Set(common.AttributeTargetSw, v)
+			err = result.Set(common.AttributeTargetSw, v)
 			break
 		case 11:
-			result.Set(common.AttributeTargetHw, v)
+			err = result.Set(common.AttributeTargetHw, v)
 			break
 		case 12:
-			result.Set(common.AttributeOther, v)
+			err = result.Set(common.AttributeOther, v)
 			break
+		}
+		if err != nil {
+			return nil, err
 		}
 	}
 	return result, nil
