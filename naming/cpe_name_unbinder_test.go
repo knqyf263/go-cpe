@@ -120,6 +120,13 @@ func TestUnbindURI(t *testing.T) {
 	}, {
 		s:       "cpe:/a:b*c",
 		wantErr: common.ErrParse,
+	}, {
+		s:       "cpe:/z:%01%01microsoft",
+		wantErr: common.ErrParse,
+	}, {
+		// empty part
+		s:       ` cpe:/:microsoft`,
+		wantErr: common.ErrParse,
 	},
 	}
 
@@ -228,6 +235,14 @@ func TestUnbindFS(t *testing.T) {
 	}, {
 		// embedded unquoted ?
 		s:       `cpe:2.3:a:2g?lux:com_sexypolling:0.9.1:-:-:*:-:joomla\!:*:*`,
+		wantErr: common.ErrParse,
+	}, {
+		// invalid  part
+		s:       `cpe:2.3:z:2glux*:??com_sexypolling??:0.9.1:-:-:*:-:joomla\!:*:*`,
+		wantErr: common.ErrParse,
+	}, {
+		// empty part
+		s:       `cpe:2.3::2glux*:??com_sexypolling??:0.9.1:-:-:*:-:joomla\!:*:*`,
 		wantErr: common.ErrParse,
 	},
 	}
