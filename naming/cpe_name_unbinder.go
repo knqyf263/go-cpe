@@ -178,7 +178,7 @@ func getCompFS(fs string, i int) string {
 // @param s value to be unbound
 // @return logical value or quoted string
 // @throws ParseException
-func unbindValueFS(s string) (interface{}, error) {
+func unbindValueFS(s string) (_ interface{}, err error) {
 	if s == "*" {
 		any, _ := common.NewLogicalValue("ANY")
 		return any, nil
@@ -187,11 +187,41 @@ func unbindValueFS(s string) (interface{}, error) {
 		na, _ := common.NewLogicalValue("NA")
 		return na, nil
 	}
-	result, err := addQuoting(s)
+
+	v := common.Value{
+		Raw: decodeFS(s),
+	}
+
+	v.Quoted, err = addQuoting(s)
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+
+	return v, nil
+}
+
+// EscapeFS escapes a string so that it can be directly used within a formatted string.
+// Logical values are untouched. Empty strings default to "*" (ANY).
+func EscapeFS(s string) (v string) {
+	switch s {
+	case "*", "-":
+		return s
+	case "":
+		return "*"
+	}
+
+	for i := 0; i < len(s); i++ {
+		switch c := string(s[i]); {
+		case common.IsAlphanum(c):
+			v += c
+		case c == ".", c == "-", c == "_":
+			v += c
+		default:
+			v += "\\" + c
+		}
+	}
+
+	return v
 }
 
 // Inspect each character in a string, copying quoted characters, with
@@ -394,6 +424,27 @@ func decode(s string) (interface{}, error) {
 		embedded = true
 	}
 	return result, nil
+}
+
+// decodeFS decodes a FS part so that it resembles the pre-quoting part text.
+// In other words: what you would get by percent-decoding the URI bound equivalent.
+func decodeFS(s string) (v string) {
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case '\\':
+			switch {
+			case i < len(s)-1:
+				v += string(s[i+1])
+				i += 1
+			default:
+				v += string(s[i])
+			}
+		default:
+			v += string(s[i])
+		}
+	}
+
+	return v
 }
 
 // unpack unpacks the elements in s and sets the attributes in the given
