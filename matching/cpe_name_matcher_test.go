@@ -466,6 +466,73 @@ func TestMatcher(t *testing.T) {
 		expectedIsEqual:    false,
 		expectedIsSubset:   false,
 		expectedIsSuperset: false,
+	}, {
+		// Trailing `*` correctly admits a target tail that contains
+		// escape sequences. Pinned because the `ends == -1` path bypasses
+		// the `leftover` checks; the value is therefore unused but still
+		// must remain non-negative for future refactors.
+		wfn: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.*`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.103`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Leading `*` correctly admits a target prefix that contains
+		// escape sequences.
+		wfn: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `*\.103`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.103`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Both ends constrained by `?` counts while target has escape
+		// sequences on both sides. Exercises the prefix and tail WFN-
+		// character bookkeeping simultaneously.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "??microsoft??",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": `\!\#microsoft\!\#`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Single `?` matches a single escaped character in target
+		// (one WFN character, two bytes).
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "?icrosoft",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": `\.icrosoft`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
 	},
 	}
 
