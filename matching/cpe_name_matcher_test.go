@@ -358,6 +358,114 @@ func TestMatcher(t *testing.T) {
 		expectedIsEqual:    false,
 		expectedIsSubset:   false,
 		expectedIsSuperset: false,
+	}, {
+		// Regression for issue #3: concrete numeric-prefix values whose
+		// shared prefix ends just before an escaped delimiter were wrongly
+		// reported as SUPERSET because escapes inside the matched substring
+		// were double-counted in leftover.
+		wfn: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.10`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.103`,
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// Reverse direction of the case above. Before the fix this direction
+		// already returned DISJOINT; the asymmetry was the smoking gun.
+		wfn: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.103`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.10`,
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// The original reporter's case in issue #3.
+		wfn: common.WellFormedName{
+			"part":    "a",
+			"version": `4\.4\.1`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "a",
+			"version": `4\.4\.19`,
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// Trailing `?` count requires exact match: 2 trailing `?`s in
+		// source but target tail has only 1 WFN character.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "microso??",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": `microso\!`,
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// Trailing `?` requires at least one character in target tail.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "a?",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": "a",
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// Leading `?` count requires exact match: 2 leading `?`s in source
+		// but target prefix has only 1 WFN character.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "??icrosoft",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": `\!icrosoft`,
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// Leading `?` requires at least one character in target prefix.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "?a",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": "a",
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
 	},
 	}
 
