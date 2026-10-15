@@ -358,6 +358,196 @@ func TestMatcher(t *testing.T) {
 		expectedIsEqual:    false,
 		expectedIsSubset:   false,
 		expectedIsSuperset: false,
+	}, {
+		// Regression for issue #3: concrete numeric-prefix values whose
+		// shared prefix ends just before an escaped delimiter were wrongly
+		// reported as SUPERSET because escapes inside the matched substring
+		// were double-counted in leftover.
+		wfn: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.10`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.103`,
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// Reverse direction of the case above. Before the fix this direction
+		// already returned DISJOINT; the asymmetry was the smoking gun.
+		wfn: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.103`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.10`,
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// The original reporter's case in issue #3.
+		wfn: common.WellFormedName{
+			"part":    "a",
+			"version": `4\.4\.1`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "a",
+			"version": `4\.4\.19`,
+		},
+		expectedIsDisjoint: true,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: false,
+	}, {
+		// `?` matches zero or one character (NIST IR 7696 §6.3), so the
+		// trailing `?` count is an upper bound: 2 trailing `?`s admit a
+		// target tail of 1 WFN character.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "microso??",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": `microso\!`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Trailing `?` also admits an empty target tail.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "a?",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": "a",
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Two trailing `?`s admit a target tail of exactly one character.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "a??",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": "ab",
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Leading `?` count is likewise an upper bound: 2 leading `?`s
+		// admit a target prefix of 1 WFN character.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "??icrosoft",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": `\!icrosoft`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Leading `?` also admits an empty target prefix.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "?a",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": "a",
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Trailing `*` correctly admits a target tail that contains
+		// escape sequences. Pinned because the `ends == -1` path bypasses
+		// the `leftover` checks; the value is therefore unused but still
+		// must remain non-negative for future refactors.
+		wfn: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.*`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.103`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Leading `*` correctly admits a target prefix that contains
+		// escape sequences.
+		wfn: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `*\.103`,
+		},
+		wfn2: common.WellFormedName{
+			"part":    "o",
+			"product": "linux_kernel",
+			"version": `5\.15\.103`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Both ends constrained by `?` counts while target has escape
+		// sequences on both sides. Exercises the prefix and tail WFN-
+		// character bookkeeping simultaneously.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "??microsoft??",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": `\!\#microsoft\!\#`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Single `?` matches a single escaped character in target
+		// (one WFN character, two bytes).
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "?icrosoft",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": `\.icrosoft`,
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
 	},
 	}
 
