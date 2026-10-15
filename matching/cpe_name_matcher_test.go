@@ -409,8 +409,9 @@ func TestMatcher(t *testing.T) {
 		expectedIsSubset:   false,
 		expectedIsSuperset: false,
 	}, {
-		// Trailing `?` count requires exact match: 2 trailing `?`s in
-		// source but target tail has only 1 WFN character.
+		// `?` matches zero or one character (NIST IR 7696 §6.3), so the
+		// trailing `?` count is an upper bound: 2 trailing `?`s admit a
+		// target tail of 1 WFN character.
 		wfn: common.WellFormedName{
 			"part":   "o",
 			"vendor": "microso??",
@@ -419,12 +420,12 @@ func TestMatcher(t *testing.T) {
 			"part":   "o",
 			"vendor": `microso\!`,
 		},
-		expectedIsDisjoint: true,
+		expectedIsDisjoint: false,
 		expectedIsEqual:    false,
 		expectedIsSubset:   false,
-		expectedIsSuperset: false,
+		expectedIsSuperset: true,
 	}, {
-		// Trailing `?` requires at least one character in target tail.
+		// Trailing `?` also admits an empty target tail.
 		wfn: common.WellFormedName{
 			"part":   "o",
 			"vendor": "a?",
@@ -433,13 +434,27 @@ func TestMatcher(t *testing.T) {
 			"part":   "o",
 			"vendor": "a",
 		},
-		expectedIsDisjoint: true,
+		expectedIsDisjoint: false,
 		expectedIsEqual:    false,
 		expectedIsSubset:   false,
-		expectedIsSuperset: false,
+		expectedIsSuperset: true,
 	}, {
-		// Leading `?` count requires exact match: 2 leading `?`s in source
-		// but target prefix has only 1 WFN character.
+		// Two trailing `?`s admit a target tail of exactly one character.
+		wfn: common.WellFormedName{
+			"part":   "o",
+			"vendor": "a??",
+		},
+		wfn2: common.WellFormedName{
+			"part":   "o",
+			"vendor": "ab",
+		},
+		expectedIsDisjoint: false,
+		expectedIsEqual:    false,
+		expectedIsSubset:   false,
+		expectedIsSuperset: true,
+	}, {
+		// Leading `?` count is likewise an upper bound: 2 leading `?`s
+		// admit a target prefix of 1 WFN character.
 		wfn: common.WellFormedName{
 			"part":   "o",
 			"vendor": "??icrosoft",
@@ -448,12 +463,12 @@ func TestMatcher(t *testing.T) {
 			"part":   "o",
 			"vendor": `\!icrosoft`,
 		},
-		expectedIsDisjoint: true,
+		expectedIsDisjoint: false,
 		expectedIsEqual:    false,
 		expectedIsSubset:   false,
-		expectedIsSuperset: false,
+		expectedIsSuperset: true,
 	}, {
-		// Leading `?` requires at least one character in target prefix.
+		// Leading `?` also admits an empty target prefix.
 		wfn: common.WellFormedName{
 			"part":   "o",
 			"vendor": "?a",
@@ -462,10 +477,10 @@ func TestMatcher(t *testing.T) {
 			"part":   "o",
 			"vendor": "a",
 		},
-		expectedIsDisjoint: true,
+		expectedIsDisjoint: false,
 		expectedIsEqual:    false,
 		expectedIsSubset:   false,
-		expectedIsSuperset: false,
+		expectedIsSuperset: true,
 	}, {
 		// Trailing `*` correctly admits a target tail that contains
 		// escape sequences. Pinned because the `ends == -1` path bypasses
