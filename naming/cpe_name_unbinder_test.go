@@ -89,6 +89,14 @@ func TestUnbindURI(t *testing.T) {
 		s:       "cpe:/a:micro%02soft",
 		wantErr: common.ErrParse,
 	}, {
+		// truncated percent-encoded form
+		s:       "cpe:/a:microsoft:internet_explorer:8.0%",
+		wantErr: common.ErrParse,
+	}, {
+		// truncated percent-encoded form
+		s:       "cpe:/a:microsoft:internet_explorer:8.0%2",
+		wantErr: common.ErrParse,
+	}, {
 		s: "cpe:/a:micro%01%01:internet%02:%21%22%23%24%25%26%27%28%29%2a%2b%2c:beta-.::online%2f%3a%3b%3c%3d%3e%3f%40%5b%5c%5d%5e",
 		expected: common.WellFormedName{
 			"part":     "a",

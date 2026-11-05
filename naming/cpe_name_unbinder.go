@@ -309,6 +309,10 @@ func decode(s string) (interface{}, error) {
 			continue
 		}
 		// We get here if we have a substring starting w/ '%'.
+		// A percent-encoded form is always three characters long.
+		if idx+3 > len(s) {
+			return nil, errors.Wrapf(common.ErrParse, "Error decoding string")
+		}
 		form := s[idx : idx+3]
 		if form == "%01" {
 			valid := false
