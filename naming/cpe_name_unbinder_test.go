@@ -97,6 +97,31 @@ func TestUnbindURI(t *testing.T) {
 		s:       "cpe:/a:microsoft:internet_explorer:8.0%2",
 		wantErr: common.ErrParse,
 	}, {
+		// invalid percent-encoded form in a non-packed edition
+		s:       "cpe:/a:microsoft:internet_explorer:8.0:sp1:ed%zz",
+		wantErr: common.ErrParse,
+	}, {
+		// truncated percent-encoded form in a non-packed edition
+		s:       "cpe:/a:microsoft:internet_explorer:8.0:sp1:ed%",
+		wantErr: common.ErrParse,
+	}, {
+		// a packed edition that is valid only when each element is
+		// decoded separately
+		s: "cpe:/a:microsoft:internet_explorer:8.0:sp1:~%01ab~~~~",
+		expected: common.WellFormedName{
+			"part":       "a",
+			"vendor":     "microsoft",
+			"product":    "internet_explorer",
+			"version":    `8\.0`,
+			"update":     "sp1",
+			"edition":    "?ab",
+			"sw_edition": any,
+			"target_sw":  any,
+			"target_hw":  any,
+			"other":      any,
+			"language":   any,
+		},
+	}, {
 		s: "cpe:/a:micro%01%01:internet%02:%21%22%23%24%25%26%27%28%29%2a%2b%2c:beta-.::online%2f%3a%3b%3c%3d%3e%3f%40%5b%5c%5d%5e",
 		expected: common.WellFormedName{
 			"part":     "a",

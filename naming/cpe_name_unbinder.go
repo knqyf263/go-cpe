@@ -17,10 +17,13 @@ func UnbindURI(uri string) (common.WellFormedName, error) {
 	result := common.WellFormedName{}
 	for i := 0; i < 8; i++ {
 		v := getCompURI(uri, i)
-		d, err := decode(v)
-		if i != 6 && err != nil {
-			return nil, err
+		d, decodeErr := decode(v)
+		// A packed edition cannot be decoded as a whole, so its decode
+		// error is checked in case 6, only for a non-packed value.
+		if i != 6 && decodeErr != nil {
+			return nil, decodeErr
 		}
+		var err error
 		switch i {
 		case 1:
 			err = result.Set(common.AttributePart, d)
@@ -39,6 +42,9 @@ func UnbindURI(uri string) (common.WellFormedName, error) {
 				// Just a logical value or a non-packed value.
 				// So unbind to legacy edition, leaving other
 				// extended attributes unspecified.
+				if decodeErr != nil {
+					return nil, decodeErr
+				}
 				err = result.Set(common.AttributeEdition, d)
 			} else {
 				// We have five values packed together here.
