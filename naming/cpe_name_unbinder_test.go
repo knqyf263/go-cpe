@@ -237,6 +237,30 @@ func TestUnbindFS(t *testing.T) {
 		s:       `cpe:2.3:a:2g?lux:com_sexypolling:0.9.1:-:-:*:-:joomla\!:*:*`,
 		wantErr: common.ErrParse,
 	}, {
+		// an escaped backslash does not quote the colon after it
+		s: `cpe:2.3:a:vendor:product:1\\:2:*:*:*:*:*:*`,
+		expected: common.WellFormedName{
+			"part":       "a",
+			"vendor":     `vendor`,
+			"product":    `product`,
+			"version":    `1\\`,
+			"update":     `2`,
+			"edition":    any,
+			"sw_edition": any,
+			"target_sw":  any,
+			"target_hw":  any,
+			"other":      any,
+			"language":   any,
+		},
+	}, {
+		// one component too many once `\\:` is read as a separator
+		s:       `cpe:2.3:a:vendor:product:1\\:2:*:*:*:*:*:*:*`,
+		wantErr: common.ErrParse,
+	}, {
+		// trailing unquoted backslash
+		s:       `cpe:2.3:a:vendor:product:1.0:*:*:*:*:*:*:x\`,
+		wantErr: common.ErrParse,
+	}, {
 		// invalid  part
 		s:       `cpe:2.3:z:2glux*:??com_sexypolling??:0.9.1:-:-:*:-:joomla\!:*:*`,
 		wantErr: common.ErrParse,

@@ -76,13 +76,25 @@ func LengthWithEscapeCharacters(str string) (result int) {
 	return len(str) - CountEscapeCharacters(str)
 }
 
+// isEscaped reports whether the character at index i of str is quoted, i.e.
+// preceded by an odd number of consecutive backslashes. A backslash quotes
+// the character that immediately follows it, so in `\\:` the backslash is
+// quoted and the colon is not.
+func isEscaped(str string, i int) bool {
+	n := 0
+	for j := i - 1; j >= 0 && str[j] == '\\'; j-- {
+		n++
+	}
+	return n%2 == 1
+}
+
 // GetUnescapedColonIndex searches a string for the first unescaped colon and returns the index of that colon
 // @param str string to search
 // @return index of first unescaped colon, or 0 if not found
 func GetUnescapedColonIndex(str string) (idx int) {
 	for i, s := range str {
 		if s == ':' {
-			if i == 0 || str[i-1] != '\\' {
+			if !isEscaped(str, i) {
 				idx = i
 				break
 			}
@@ -148,7 +160,7 @@ func ValidateFS(in string) error {
 	count := 0
 	for i := 0; i != len(in); i++ {
 		if in[i] == ':' {
-			if i == 0 || in[i-1] != '\\' {
+			if !isEscaped(in, i) {
 				count++
 			} else {
 				continue

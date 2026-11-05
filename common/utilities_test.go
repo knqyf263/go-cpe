@@ -199,6 +199,16 @@ func TestGetUnescapedColonIndex(t *testing.T) {
 	}, {
 		s:        `abc\:def:ghi`,
 		expected: 8,
+	}, {
+		// an escaped backslash does not quote the colon after it
+		s:        `abc\\:def`,
+		expected: 5,
+	}, {
+		s:        `\\:abc`,
+		expected: 2,
+	}, {
+		s:        `abc\\\:def:ghi`,
+		expected: 10,
 	},
 	}
 
@@ -317,6 +327,13 @@ func TestValidateFS(t *testing.T) {
 		wantErr: ErrParse,
 	}, {
 		s:       "cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:sp2:",
+		wantErr: ErrParse,
+	}, {
+		// version `1\\` (an escaped backslash) followed by a separator
+		s: `cpe:2.3:a:vendor:product:1\\:2:*:*:*:*:*:*`,
+	}, {
+		// the same with one component too many
+		s:       `cpe:2.3:a:vendor:product:1\\:2:*:*:*:*:*:*:*`,
 		wantErr: ErrParse,
 	},
 	}

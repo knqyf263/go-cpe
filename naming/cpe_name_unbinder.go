@@ -213,6 +213,10 @@ func addQuoting(s string) (result string, err error) {
 			continue
 		}
 		if c == "\\" {
+			// A backslash must quote the character that follows it.
+			if idx+1 >= len(s) {
+				return "", errors.Wrap(common.ErrParse, "Error! cannot have a trailing unquoted \\ in formatted string.")
+			}
 			// Anything quoted in the bound string stays quoted in the
 			// unbound string.
 			result += s[idx : idx+2]
