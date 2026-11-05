@@ -17,10 +17,13 @@ func UnbindURI(uri string) (common.WellFormedName, error) {
 	result := common.WellFormedName{}
 	for i := 0; i < 8; i++ {
 		v := getCompURI(uri, i)
-		d, err := decode(v)
-		if i != 6 && err != nil {
-			return nil, err
+		d, decodeErr := decode(v)
+		// A packed edition cannot be decoded as a whole, so its decode
+		// error is checked in case 6, only for a non-packed value.
+		if i != 6 && decodeErr != nil {
+			return nil, decodeErr
 		}
+		var err error
 		switch i {
 		case 1:
 			err = result.Set(common.AttributePart, d)
@@ -39,6 +42,9 @@ func UnbindURI(uri string) (common.WellFormedName, error) {
 				// Just a logical value or a non-packed value.
 				// So unbind to legacy edition, leaving other
 				// extended attributes unspecified.
+				if decodeErr != nil {
+					return nil, decodeErr
+				}
 				err = result.Set(common.AttributeEdition, d)
 			} else {
 				// We have five values packed together here.
@@ -213,6 +219,10 @@ func addQuoting(s string) (result string, err error) {
 			continue
 		}
 		if c == "\\" {
+			// A backslash must quote the character that follows it.
+			if idx+1 >= len(s) {
+				return "", errors.Wrap(common.ErrParse, "Error! cannot have a trailing unquoted \\ in formatted string.")
+			}
 			// Anything quoted in the bound string stays quoted in the
 			// unbound string.
 			result += s[idx : idx+2]
@@ -305,6 +315,10 @@ func decode(s string) (interface{}, error) {
 			continue
 		}
 		// We get here if we have a substring starting w/ '%'.
+		// A percent-encoded form is always three characters long.
+		if idx+3 > len(s) {
+			return nil, errors.Wrapf(common.ErrParse, "Error decoding string")
+		}
 		form := s[idx : idx+3]
 		if form == "%01" {
 			valid := false
