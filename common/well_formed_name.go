@@ -81,9 +81,35 @@ func (wfn WellFormedName) Initialize(part, vendor, product, version, update, edi
 // @return the String value of the given component, or default value "ANY"
 // if the component does not exist
 func (wfn WellFormedName) Get(attribute string) interface{} {
-	if v, ok := wfn[attribute]; ok {
+	v := wfn.get(attribute)
+	switch v := v.(type) {
+	case Value:
+		return v.Quoted
+	default:
 		return v
 	}
+}
+
+// GetRaw returns the raw string representation of the given attribute. Defaults to "*" (ANY).
+func (wfn WellFormedName) GetRaw(attribute string) string {
+	v := wfn.get(attribute)
+	switch v := v.(type) {
+	case Value:
+		return v.Raw
+	case LogicalValue:
+		return v.Raw()
+	default:
+		return "*"
+	}
+}
+
+// get returns the stored value for the given atribute, defaults to "ANY" if it does not exist.
+func (wfn WellFormedName) get(attribute string) interface{} {
+	v, ok := wfn[attribute]
+	if ok {
+		return v
+	}
+
 	any, _ := NewLogicalValue("ANY")
 	return any
 }
@@ -109,19 +135,24 @@ func (wfn WellFormedName) Set(attribute string, value interface{}) (err error) {
 		return nil
 	}
 
-	svalue, ok := value.(string)
-	if !ok {
-		return errors.Wrap(ErrIllegalAttribute, "value must be a logical value or string")
+	var s string
+	switch v := value.(type) {
+	case Value:
+		s = v.Quoted
+	case string:
+		s = v
+	default:
+		return errors.Wrap(ErrIllegalAttribute, "value must be any value representation or a string")
 	}
 
-	if err = ValidateStringValue(svalue); err != nil {
+	if err = ValidateStringValue(s); err != nil {
 		return errors.Wrap(err, "Failed to validate a value")
 	}
 
 	// part must be a, o, or h
 	if attribute == AttributePart {
-		if svalue != "a" && svalue != "o" && svalue != "h" {
-			return errors.Wrapf(ErrParse, "part component must be one of the following: 'a', 'o', 'h': %s", svalue)
+		if s != "a" && s != "o" && s != "h" {
+			return errors.Wrapf(ErrParse, "part component must be one of the following: 'a', 'o', 'h': %s", s)
 		}
 	}
 

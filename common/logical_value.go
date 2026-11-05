@@ -49,3 +49,12 @@ func (lv LogicalValue) String() string {
 	}
 	return "NA"
 }
+
+// Raw returns the raw string representation of the logical value.
+func (lv LogicalValue) Raw() string {
+	if lv.Any {
+		return "*"
+	}
+
+	return "-"
+}
